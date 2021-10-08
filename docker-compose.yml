@@ -9,7 +9,8 @@ services:
 
     volumes:
       - ./custom_addons:/mnt/extra-addons
-
+      - ./config:/etc/odoo     
+  
   db:
     image: postgres:13
     environment:
