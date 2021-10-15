@@ -15,5 +15,8 @@ Vagrant.configure("2") do |config|
   config.vm.define "odoo" do |odoo|
     odoo.vm.hostname = "odoo"
     odoo.vm.network "public_network", bridge: "wlp1s0"
+    odoo.vm.provision "ansible_local" do |ansible|
+      ansible.playbook = ".playbook/main.yml"
+    end
   end
 end

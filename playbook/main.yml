@@ -1,0 +1,129 @@
+---
+- hosts: all
+  become: true
+
+  tasks:
+    - name: Only run "update_cache=yes" if the last one is more than 3600 seconds ago
+      apt:
+        update_cache: yes
+        upgrade: true
+        cache_valid_time: 3600
+
+    - name: Ensure pip3 is installed and up to date
+      apt:
+        name: python3-pip
+        state: latest
+
+    - name: Ensure all packages and dependencies are installed
+      apt:
+        name:
+          - python-dev 
+          - python3-dev 
+          - libxml2-dev 
+          - libxslt1-dev
+          - zlib1g-dev
+          - libsasl2-dev
+          - libldap2-dev
+          - build-essential
+          - libssl-dev
+          - libffi-dev
+          - libmysqlclient-dev
+          - libjpeg-dev
+          - libpq-dev
+          - libjpeg8-dev
+          - liblcms2-dev
+          - libblas-dev
+          - libatlas-base-dev
+        state: latest
+
+    - name: Ensure npm are installed
+      apt:
+        name:
+          - npm
+        state: latest
+
+    - name: Create a symbolic link
+      file:
+        src: /usr/bin/nodejs
+        dest: /usr/bin/node
+        owner: root
+        group: root
+        state: link
+
+    - name: Install "coffee-script" node.js package globally.
+      npm:
+        name:
+          - less
+          - less-plugin-clean-css
+        global: yes
+
+    - name: Ensure node-less is installed
+      apt:
+        name:
+          - node-less
+        state: latest
+
+    - name: Ensure postgresql is installed
+      apt:
+        name:
+          - postgresql
+          - postgresql-server
+        state: latest
+
+    - name: "Find out if PostgreSQL is initialized"
+      ansible.builtin.stat:
+        path: "/var/lib/pgsql/data/pg_hba.conf"
+      register: postgres_data
+
+    - name: "Initialize PostgreSQL"
+      shell: "postgresql-setup initdb"
+      when: not postgres_data.stat.exists
+ 
+    - name: "Start and enable services"
+      service: "name={{ item }} state=started enabled=yes"
+      with_items:
+        - postgresql
+
+    - name: "Create a PostgreSQL user"
+      postgresql_user:
+        name: odoo
+        password: odoo
+        priv: "ALL=(ALL) NOPASSWD: ALL"
+        update_password: always
+
+    - name: Create odoo user system user
+      user:
+        name: odoo
+        comment: Odoo system user
+        home: /home/odoo
+        shell: /bin/bash
+        state: present
+        group: odoo
+
+    - name: Ensure git is installed
+      apt:
+        name:
+          - git
+        state: latest
+
+    - block:
+      - name: Example clone of a single branch
+        git:
+          repo: https://www.github.com/odoo/odoo
+          dest: /home/odoo
+          single_branch: yes
+          depth: 1
+          version: 15.0
+
+      - name: change perms
+        file:
+        dest: /home/odoo
+        state: directory
+        mode: 0755
+        owner: odoo
+      become: yes
+      become_user: odoo
+
+  handlers:
+    - name: restart postgres
+      service: name=postgresql state=restarted
