@@ -1,0 +1,64 @@
+---
+- hosts: all
+  become: yes
+
+  vars_files:
+    - vars.yml
+
+  tasks:
+    - name: "Set user group"
+      group:
+        state: "present"
+        name: "{{ odoo_user }}"
+
+    - name: Create odoo user system user
+      user:
+        name: "{{ odoo_user }}"
+        comment: Odoo system user
+        home: "{{ odoo_dir }}"
+        shell: /bin/bash
+        state: present
+        group: "{{ odoo_group }}"
+
+    - name: Ensure git is installed
+      apt:
+        name:
+          - git
+        state: latest
+
+    - name: Example clone of a single branch
+      git:
+        repo: "{{ odoo_repo }}"
+        dest: "{{ odoo_dir }}"
+        single_branch: yes
+        depth: 1
+        version: "{{ odoo_version }}"
+
+    - name: Change permissions on odoo directory
+      file:
+        dest: "{{ odoo_dir }}"
+        state: directory
+        mode: 0755
+        owner: "{{ odoo_user }}"
+        group: "{{ odoo_group }}"
+
+    - name: Install odoo reqiuirements
+      shell: "pip3 install -r {{ odoo_dir }}/requirements.txt"
+
+    - name: Download https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.5/wkhtmltox_0.12.5-1.bionic_amd64.deb
+      get_url:
+        url: https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.5/wkhtmltox_0.12.5-1.bionic_amd64.deb
+        dest: " {{ home_dir }}/wkhtmltox_0.12.5-1.bionic_amd64.deb"
+
+    - name: Install wkhtmltopdf
+      shell: |
+        "dpkg -i {{ home_dir }}/wkhtmltox_0.12.5-1.bionic_amd64.deb"
+        apt install -f
+
+    - name: Copy file with owner and permissions
+      copy:
+        src: "{{ odoo_dir }}/odoo.conf"
+        dest: /etc/odoo.conf
+        owner: "{{ odoo_user}}"
+        group: "{{ odoo_group }}"
+        mode: '0640'

@@ -1,0 +1,49 @@
+---
+- hosts: all
+  become: true
+
+  tasks:
+    - name: Ensure pip3 is installed and up to date
+      apt:
+        name: python3-pip
+        state: latest
+
+    - name: Ensure all packages and dependencies are installed
+      apt:
+        name:
+          - python-dev 
+          - python3-dev 
+          - libxml2-dev 
+          - libxslt1-dev
+          - zlib1g-dev
+          - libsasl2-dev
+          - libldap2-dev
+          - build-essential
+          - libssl-dev
+          - libffi-dev
+          - libmysqlclient-dev
+          - libjpeg-dev
+          - libpq-dev
+          - libjpeg8-dev
+          - liblcms2-dev
+          - libblas-dev
+          - libatlas-base-dev
+          # - python3-psycopg2
+        state: latest
+    
+
+    - name: Ensure npm are installed
+      apt:
+        name:
+          - nodejs
+          - npm
+        state: latest
+
+    - name: Install "less & plugins" node.js package globally.
+      shell: npm install -g less less-plugin-clean-css
+        
+    - name: Ensure node-less is installed
+      apt:
+        name:
+          - node-less
+        state: latest
