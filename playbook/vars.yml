@@ -2,7 +2,7 @@ odoo_user: odoo
 odoo_group: odoo
 odoo_dir: /opt/odoo
 odoo_version: 15.0
-odoo_repo: https://www.github.com/odoo/odoo
+odoo_repo: https://github.com/odoo/odoo.git
 
 home_dir: /home/vagrant
 
@@ -13,8 +13,9 @@ postgresql_service_enabled: true
 postgres_users_no_log: false
 
 postgresql_users:
-  - name: odoo15 #required; the rest are optional
+  - name: odoo #required; the rest are optional
     password: odoo # defaults to not set
-    priv: "ALL" # defaults to not set
+    priv: ALL # defaults to not set
     state: present # defaults to 'present'
     db: postgres
+    role_attr_flags: CREATEDB,NOSUPERUSER

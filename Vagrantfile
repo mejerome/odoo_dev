@@ -16,7 +16,7 @@ Vagrant.configure("2") do |config|
     odoo.vm.hostname = "odoo"
     odoo.vm.network "public_network", bridge: "wlp1s0"
     odoo.vm.provision "ansible_local" do |ansible|
-      ansible.playbook = "playbook/main.yml"
+      ansible.playbook = "playbook/odoo-rm.yml"
       ansible.galaxy_role_file = "playbook/requirements.yml"
       ansible.galaxy_roles_path = "/home/vagrant/ansible/roles"
     end

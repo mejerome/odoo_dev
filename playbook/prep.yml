@@ -40,7 +40,7 @@
         state: latest
 
     - name: Install "less & plugins" node.js package globally.
-      shell: npm install -g less less-plugin-clean-css
+      shell: npm install -g less less-plugin-clean-css rtlcss
         
     - name: Ensure node-less is installed
       apt:
