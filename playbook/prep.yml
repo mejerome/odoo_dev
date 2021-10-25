@@ -2,6 +2,9 @@
 - hosts: all
   become: true
 
+  vars_files:
+    - vars.yml
+
   tasks:
     - name: Update cache & upgrade the OS (apt-get dist-upgrade)
       apt:
@@ -11,14 +14,14 @@
 
     - name: Add odoo group
       group:
-        name: odoo
+        name: "{{ odoo_user }}"
         state: present
 
     - name: Add odoo user and group
       user:
-        name: odoo
-        group: odoo
-        home: /opt/odoo
+        name: "{{ odoo_user }}"
+        group: "{{ odoo_group }}"
+        home: "{{ odoo_dir }}"
         state: present
 
     - name: Install python dependencies
@@ -75,8 +78,9 @@
 
     - name: Install wkhtmltopdf
       shell: |
-        wget /tmp/ https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.5/wkhtmltox_0.12.5-1.bionic_amd64.deb
-        apt install /tmp/wkhtmltox_0.12.5-1.bionic_amd64.deb
+        cd "{{ home_dir }}"
+        wget https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.5/wkhtmltox_0.12.5-1.bionic_amd64.deb
+        apt install ./wkhtmltox_0.12.5-1.bionic_amd64.deb
       args:
         creates: /usr/local/bin/wkhtmltopdf
         

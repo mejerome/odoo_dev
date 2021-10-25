@@ -36,16 +36,16 @@
       shell: "pip3 install -r {{ odoo_dir }}/odoo-server/requirements.txt"
 
     - name: Copy odoo.conf file with owner and permissions
-      copy:
-        src: "/vagrant/config/odoo.conf"
+      template:
+        src: "/vagrant/config/odoo.conf.j2"
         dest: "/etc/odoo.conf"
         owner: "{{ odoo_user}}"
         group: "{{ odoo_group }}"
         mode: '0640'
 
     - name: Copy odoo.service file with owner and permissions
-      copy:
-        src: "/vagrant/config/odoo.service"
+      template:
+        src: "/vagrant/config/odoo.service.j2"
         dest: "/etc/systemd/system/odoo.service"
         owner: "root"
         group: "root"
