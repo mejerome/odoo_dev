@@ -2,7 +2,7 @@ odoo_user: odoo
 odoo_group: odoo
 odoo_dir: /opt/odoo
 odoo_version: 15.0
-odoo_repo: https://github.com/odoo/odoo.git
+odoo_repo: https://github.com/odoo/odoo
 
 home_dir: /home/vagrant
 

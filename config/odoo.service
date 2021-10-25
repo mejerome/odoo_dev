@@ -5,6 +5,6 @@
    # Ubuntu/Debian convention:
    Type=simple
    User=odoo
-   ExecStart=/opt/odoo/odoo/odoo-bin -c /etc/odoo.conf
+   ExecStart=/opt/odoo/odoo-server/odoo-bin -c /etc/odoo.conf
    [Install]
    WantedBy=default.target

@@ -6,30 +6,17 @@
     - vars.yml
 
   tasks:
-    - name: "Set user group"
-      group:
-        state: "present"
-        name: "{{ odoo_user }}"
+    - name: Create odoo log directory
+      file:
+        state: directory
+        path: /var/log/odoo
+        owner: odoo
+        group: odoo
 
-    - name: Create odoo user system user
-      user:
-        name: "{{ odoo_user }}"
-        comment: Odoo system user
-        home: "{{ odoo_dir }}"
-        shell: /bin/bash
-        state: present
-        group: "{{ odoo_group }}"
-
-    - name: Ensure git is installed
-      apt:
-        name:
-          - git
-        state: latest
-
-    - name: Example clone of a single branch
+    - name: Clone of a single branch of odoo repo
       git:
         repo: "{{ odoo_repo }}"
-        dest: "{{ odoo_dir }}/odoo"
+        dest: "{{ odoo_dir }}/odoo-server"
         single_branch: yes
         version: "{{ odoo_version}}"
         depth: 1
@@ -37,43 +24,18 @@
         update: yes
         force: yes
 
-    # - name: Clone of a single branch of odoo
-    #   shell: |
-    #     su - odoo -s /bin/bash
-    #     git clone {{ odoo_repo }} --depth 1 --branch {{ odoo_version }}  --single-branch
-
-    #   args:
-    #     creates: "{{ odoo_dir }}/odoo"
-
     - name: Change permissions on odoo directory
       file:
-        dest: "{{ odoo_dir }}"
+        dest: "{{ odoo_dir }}/odoo-server"
         state: directory
         mode: 0755
         owner: "{{ odoo_user }}"
         group: "{{ odoo_group }}"
 
     - name: Install odoo requirements
-      shell: "pip3 install -r {{ odoo_dir }}/odoo/requirements.txt"
+      shell: "pip3 install -r {{ odoo_dir }}/odoo-server/requirements.txt"
 
-    - name: Download https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.5/wkhtmltox_0.12.5-1.bionic_amd64.deb
-      shell: |
-          wget https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.5/wkhtmltox_0.12.5-1.bionic_amd64.deb
-          dpkg -i wkhtmltox_0.12.5-1.bionic_amd64.deb
-          apt install -f -y
-      args:
-        creates: /usr/local/bin/wkhtmltopdf
-
-    - name: Create log directory
-      file:
-        dest: "/var/log/{{ odoo_user }}"
-        state: directory
-        mode: 0755
-        owner: "{{ odoo_user }}"
-        group: "{{ odoo_group }}"
-        
-
-    - name: Copy file with owner and permissions
+    - name: Copy odoo.conf file with owner and permissions
       copy:
         src: "/vagrant/config/odoo.conf"
         dest: "/etc/odoo.conf"
@@ -81,17 +43,16 @@
         group: "{{ odoo_group }}"
         mode: '0640'
 
-    - name: Copy odoo.service with root ownership
+    - name: Copy odoo.service file with owner and permissions
       copy:
         src: "/vagrant/config/odoo.service"
         dest: "/etc/systemd/system/odoo.service"
-        owner: root
-        group: root
-        mode: '0755'
+        owner: "root"
+        group: "root"
+        mode: '0755'    
 
     - name: Start odoo service
-      service:
-        name: odoo
-        state: started
+      shell: "systemctl restart odoo.service"
+    
 
-    - debug: var=hostvars[inventory_hostname]['ansible_enp0s8']['ipv4']['address']
+    - debug: var=hostvars[inventory_hostname]['ansible_eth1']['ipv4']['address']

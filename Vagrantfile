@@ -7,16 +7,16 @@ Vagrant.configure("2") do |config|
   config.vm.synced_folder ".", "/vagrant"
   config.vm.provider "virtualbox" do |vb|
     vb.memory = 1024
-    vb.cpus = 1
+    vb.cpus = 2
     vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
     vb.customize ["modifyvm", :id, "--ioapic", "on"]
   end
 
   config.vm.define "odoo" do |odoo|
     odoo.vm.hostname = "odoo"
-    odoo.vm.network "public_network", bridge: "wlp1s0"
+    odoo.vm.network "public_network"
     odoo.vm.provision "ansible_local" do |ansible|
-      ansible.playbook = "playbook/odoo-rm.yml"
+      ansible.playbook = "playbook/main.yml"
       ansible.galaxy_role_file = "playbook/requirements.yml"
       ansible.galaxy_roles_path = "/home/vagrant/ansible/roles"
     end
