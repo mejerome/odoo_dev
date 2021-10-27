@@ -5,6 +5,7 @@ odoo_version: 15.0
 odoo_repo: https://github.com/odoo/odoo
 odoo_user_db: odoo
 odoo_password_db: odoo
+admin_passwd: odoo
 
 home_dir: /home/vagrant
 

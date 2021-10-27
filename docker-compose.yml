@@ -10,6 +10,7 @@ services:
     - HOST=mydb
     - USER=odoo
     - PASSWORD=myodoo
+    
   mydb:
     image: postgres:15
     environment:
